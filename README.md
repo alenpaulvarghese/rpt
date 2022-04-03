@@ -4,6 +4,11 @@ Commandline program that repeats a string by a given amount. Supports a separato
 can be used in pipes.
 
 
+## Background
+
+This is a clone of the ANSI-C implementation called [`repeat`](https://github.com/marcotrosi/repeat) created by **marcotrosi**.
+
+
 ## Installing
 
     cargo install --path .
