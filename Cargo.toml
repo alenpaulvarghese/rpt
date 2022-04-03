@@ -1,9 +1,8 @@
 [package]
 name = "rpt"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
-license-file = "LICENSE"
 
 [dependencies]
 getopts = "0.2.21"

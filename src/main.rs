@@ -28,7 +28,9 @@ pub fn reverse_string(string: &mut String) {
 pub fn repl_esc_seq(r_str: &mut String) {
     let chars = r_str.clone();
     let mut found_slash = false;
-    for (index, c) in chars.char_indices() {
+    let mut index_offset = 0;
+    for (mut index, c) in chars.char_indices() {
+        index -= index_offset;
         if found_slash {
             let _char_found = match c {
                 'n' => Some('\n'),
@@ -38,6 +40,7 @@ pub fn repl_esc_seq(r_str: &mut String) {
             };
             if let Some(e_c) = _char_found {
                 r_str.replace_range(index - 1..index + 1, &e_c.to_string());
+                index_offset += 1;
             }
             found_slash = false;
         } else if c == '\\' {
