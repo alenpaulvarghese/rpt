@@ -2,7 +2,7 @@ use atty;
 use getopts::{Fail, Options};
 
 use std::env;
-use std::io::{self, BufRead};
+use std::io::{self, Read};
 use std::process::exit;
 
 pub fn print_help(opts: &Options) {
@@ -91,15 +91,13 @@ fn main() {
         return;
     }
 
-    let mut input = String::new();
-
-    if atty::is(atty::Stream::Stdin) {
+    let mut input = if atty::is(atty::Stream::Stdin) {
         if matches.free.len() < 2 {
             eprintln!("rpt error: too few arguments\n");
             print_usage();
             return;
         }
-        input = matches.free[1..].join(" ");
+        matches.free[1..].join(" ")
     } else {
         if matches.free.len() < 1 {
             eprintln!("rpt error: too few arguments\n");
@@ -109,23 +107,16 @@ fn main() {
         let stdin = io::stdin();
         let mut stdin = stdin.lock();
 
-        match stdin.read_line(&mut input) {
-            Ok(len) => {
-                if len == 0 {
-                    return;
-                } else {
-                    input = input
-                        .strip_suffix("\n")
-                        .and_then(|s| Some(s.to_string()))
-                        .unwrap_or(input);
-                }
-            }
-            Err(error) => {
-                eprintln!("rpt error: {}", error);
-                return;
-            }
-        };
-    }
+        let mut bytes = Vec::new();
+        stdin.read_to_end(&mut bytes).unwrap_or_else(|e| {
+            eprintln!("rpt error: {}", e.to_string());
+            exit(1)
+        });
+        let out = String::from_utf8(bytes).expect("rpt error: unreadable file");
+        out.strip_suffix('\n')
+            .and_then(|s| Some(s.to_string()))
+            .unwrap_or(out)
+    };
 
     let mut seperator = matches.opt_str("s");
     let mut num_of_repititions = matches.free[0].parse::<i32>().unwrap_or_else(|_| {
